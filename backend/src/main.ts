@@ -22,7 +22,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const PORT = process.env.PORT || 5000;
-  await app.listen(PORT);
+  await app.listen(PORT, '0.0.0.0');
   console.log(`🏸 Badminton Tournament API Server running at http://localhost:${PORT}/api`);
 }
 bootstrap();
