@@ -217,9 +217,20 @@ export const TournamentProvider = ({ children }) => {
     return null;
   };
 
-  const updateMatchScore = async (matchId, newSetScores) => {
+  const updateMatchScore = async (matchId, newSetScores, scheduledTimeOrExtra, courtParam) => {
     const match = matches.find((m) => String(m.id) === String(matchId));
     if (!match) return;
+
+    let scheduledTime = match.scheduledTime || match.scheduled_time || '';
+    let court = match.court || 'Sân 1';
+
+    if (typeof scheduledTimeOrExtra === 'object' && scheduledTimeOrExtra !== null) {
+      if (scheduledTimeOrExtra.scheduledTime !== undefined) scheduledTime = scheduledTimeOrExtra.scheduledTime;
+      if (scheduledTimeOrExtra.court !== undefined) court = scheduledTimeOrExtra.court;
+    } else {
+      if (scheduledTimeOrExtra !== undefined) scheduledTime = scheduledTimeOrExtra;
+      if (courtParam !== undefined) court = courtParam;
+    }
 
     const tournament = tournaments.find((t) => String(t.id) === String(match.tournamentId));
     const maxSets = Number(tournament?.maxSets ?? tournament?.max_sets ?? 3);
@@ -231,28 +242,30 @@ export const TournamentProvider = ({ children }) => {
     let team2WonSets = 0;
 
     const validatedSets = [];
-    for (const set of newSetScores) {
-      const winnerId = determineSetWinner(
-        set,
-        match.team1Id || match.team1_id,
-        match.team2Id || match.team2_id,
-        pointsToWinSet,
-        maxPointsCap
-      );
+    if (Array.isArray(newSetScores)) {
+      for (const set of newSetScores) {
+        const winnerId = determineSetWinner(
+          set,
+          match.team1Id || match.team1_id,
+          match.team2Id || match.team2_id,
+          pointsToWinSet,
+          maxPointsCap
+        );
 
-      if (winnerId === (match.team1Id || match.team1_id)) team1WonSets++;
-      if (winnerId === (match.team2Id || match.team2_id)) team2WonSets++;
+        if (winnerId === (match.team1Id || match.team1_id)) team1WonSets++;
+        if (winnerId === (match.team2Id || match.team2_id)) team2WonSets++;
 
-      validatedSets.push({
-        setNumber: set.setNumber,
-        team1Score: Number(set.team1Score) || 0,
-        team2Score: Number(set.team2Score) || 0,
-        winnerTeamId: winnerId || '',
-      });
+        validatedSets.push({
+          setNumber: set.setNumber,
+          team1Score: Number(set.team1Score) || 0,
+          team2Score: Number(set.team2Score) || 0,
+          winnerTeamId: winnerId || '',
+        });
+      }
     }
 
     const hasAnyPlayedSet = validatedSets.some((s) => s.team1Score > 0 || s.team2Score > 0);
-    const isSingleSetEntered = newSetScores.filter((s) => Number(s.team1Score) > 0 || Number(s.team2Score) > 0).length === 1;
+    const isSingleSetEntered = (newSetScores || []).filter((s) => Number(s.team1Score) > 0 || Number(s.team2Score) > 0).length === 1;
 
     const isMatchDone =
       team1WonSets >= setsToWinMatch ||
@@ -270,17 +283,20 @@ export const TournamentProvider = ({ children }) => {
       ? 'COMPLETED'
       : hasAnyPlayedSet
       ? 'IN_PROGRESS'
-      : 'SCHEDULED';
+      : (match.status || 'SCHEDULED');
 
     // 1. Cập nhật trạng thái trận đấu hiện tại trong state
     let updatedMatches = matches.map((m) => {
       if (String(m.id) === String(matchId)) {
         return {
           ...m,
-          setScores: validatedSets,
+          setScores: validatedSets.length > 0 ? validatedSets : m.setScores,
           winnerId: matchWinnerId,
           winner_id: matchWinnerId,
           status: newStatus,
+          scheduledTime,
+          scheduled_time: scheduledTime,
+          court,
         };
       }
       return m;
@@ -319,7 +335,13 @@ export const TournamentProvider = ({ children }) => {
 
     // 3. Gửi cập nhật trực tiếp lên Supabase
     try {
-      await matchApi.updateScore(matchId, validatedSets, matchWinnerId, newStatus);
+      await matchApi.updateScore(matchId, {
+        setScores: validatedSets,
+        winnerId: matchWinnerId,
+        status: newStatus,
+        scheduledTime,
+        court,
+      });
     } catch (err) {
       console.warn('Lưu tỷ số backend tạm hoãn:', err.message);
     }
@@ -951,7 +973,15 @@ export const TournamentProvider = ({ children }) => {
     const advancingCount = tournament?.advancingPerGroup || 2;
     const knockoutPairs = [];
 
-    if (groupKeys.length === 2) {
+    if (groupKeys.length === 1) {
+      // 1 Bảng -> Lấy 4 đội cao điểm nhất vào Bán Kết (Top 1 vs Top 4, Top 2 vs Top 3)
+      const groupA = standings[groupKeys[0]] || [];
+      knockoutPairs.push(
+        { team1Id: groupA[0]?.team?.id || null, team2Id: groupA[3]?.team?.id || null }, // Top 1 vs Top 4
+        { team1Id: groupA[1]?.team?.id || null, team2Id: groupA[2]?.team?.id || null }  // Top 2 vs Top 3
+      );
+      createCustomBracket(tournamentId, knockoutPairs, 4);
+    } else if (groupKeys.length === 2) {
       // 2 Bảng (A & B) -> Nhất A vs Nhì B, Nhất B vs Nhì A
       const groupA = standings['Bảng A'] || [];
       const groupB = standings['Bảng B'] || [];

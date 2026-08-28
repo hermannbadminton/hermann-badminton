@@ -6,9 +6,11 @@ export declare class SetScoreDto {
     team2Score: number;
 }
 export declare class UpdateMatchScoreDto {
-    setScores: SetScoreDto[];
+    setScores?: SetScoreDto[];
     winnerId?: string;
     status?: MatchStatus;
+    scheduledTime?: string;
+    court?: string;
 }
 export interface SetResult {
     setNumber: number;

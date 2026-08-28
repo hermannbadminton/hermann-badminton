@@ -22,7 +22,13 @@ export const matchApi = {
   getByTournament: (tournamentId) => apiClient.get(`/matches/tournament/${tournamentId}`),
   getBracket: (tournamentId) => apiClient.get(`/matches/tournament/${tournamentId}/bracket`),
   saveBatch: (tournamentId, stage, matches) => apiClient.post('/matches/batch', { tournamentId, stage, matches }),
-  updateScore: (id, setScores, winnerId, status) => apiClient.patch(`/matches/${id}/score`, { setScores, winnerId, status }),
+  updateScore: (id, payloadOrSetScores, winnerId, status, scheduledTime, court) => {
+    const body =
+      typeof payloadOrSetScores === 'object' && !Array.isArray(payloadOrSetScores)
+        ? payloadOrSetScores
+        : { setScores: payloadOrSetScores, winnerId, status, scheduledTime, court };
+    return apiClient.patch(`/matches/${id}/score`, body);
+  },
 };
 
 export const authApi = {

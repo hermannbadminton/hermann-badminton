@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useTournament } from '../context/TournamentContext';
 import BracketViewer from '../components/bracket/BracketViewer';
-import GroupStageViewer from '../components/group/GroupStageViewer';
+import GroupStandingsTab from '../components/group/GroupStandingsTab';
+import GroupScheduleTab from '../components/group/GroupScheduleTab';
 import MatchDetailModal from '../components/bracket/MatchDetailModal';
 import ScoreEditorModal from '../components/admin/ScoreEditorModal';
 import TournamentModal from '../components/admin/TournamentModal';
@@ -19,6 +20,7 @@ import {
   Edit,
   Flame,
   Layers,
+  GitBranch,
 } from 'lucide-react';
 
 export default function TournamentDetailPage({ tournamentId, onBack }) {
@@ -62,12 +64,12 @@ export default function TournamentDetailPage({ tournamentId, onBack }) {
   const hasGroupStage = tournament?.format === 'GROUP_KNOCKOUT' || tournament?.format === 'ROUND_ROBIN';
   const hasKnockout = tournament?.format !== 'ROUND_ROBIN';
 
-  // Tabs: 'GROUPS' | 'BRACKET' | 'RULES'
-  const [activeTab, setActiveTab] = useState(() => (hasGroupStage ? 'GROUPS' : 'BRACKET'));
+  // Tabs: 'STANDINGS' | 'GROUP_SCHEDULE' | 'BRACKET' | 'RULES'
+  const [activeTab, setActiveTab] = useState(() => (hasGroupStage ? 'STANDINGS' : 'BRACKET'));
 
   React.useEffect(() => {
     if (tournament) {
-      setActiveTab(hasGroupStage ? 'GROUPS' : 'BRACKET');
+      setActiveTab(hasGroupStage ? 'STANDINGS' : 'BRACKET');
     }
   }, [tournament?.id, hasGroupStage]);
 
@@ -192,25 +194,41 @@ export default function TournamentDetailPage({ tournamentId, onBack }) {
       {/* Tabs Selector with horizontal scroll */}
       <div className="flex items-center gap-1 sm:gap-2 border-b border-slate-200 overflow-x-auto custom-scrollbar pb-0.5">
         {hasGroupStage && (
-          <button
-            onClick={() => setActiveTab('GROUPS')}
-            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === 'GROUPS'
-                ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+          <>
+            <button
+              onClick={() => setActiveTab('STANDINGS')}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                activeTab === 'STANDINGS'
+                  ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>Vòng Bảng (Group Stage)</span>
-          </button>
+            >
+              <Layers className="w-4 h-4" />
+              <span>Bảng Đấu</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('GROUP_SCHEDULE')}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+                activeTab === 'GROUP_SCHEDULE'
+                  ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Lịch Thi Đấu Vòng Bảng</span>
+            </button>
+          </>
         )}
 
         {hasKnockout && (
           <button
             onClick={() => setActiveTab('BRACKET')}
-            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === 'BRACKET'
+            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+              activeTab === 'BRACKET'
                 ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
                 : 'border-transparent text-slate-500 hover:text-slate-800'
-              }`}
+            }`}
           >
             <Trophy className="w-4 h-4" />
             <span>Sơ Đồ Nhánh Đấu (Knockout)</span>
@@ -219,27 +237,38 @@ export default function TournamentDetailPage({ tournamentId, onBack }) {
 
         <button
           onClick={() => setActiveTab('RULES')}
-          className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${activeTab === 'RULES'
+          className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap shrink-0 ${
+            activeTab === 'RULES'
               ? 'border-emerald-600 text-emerald-700 bg-emerald-50/50'
               : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
+          }`}
         >
           <BookOpen className="w-4 h-4" />
           <span>Thể Thức & Luật Thi Đấu</span>
         </button>
       </div>
 
-      {/* TAB CONTENT 1: GROUP STAGE VIEWER */}
-      {activeTab === 'GROUPS' && hasGroupStage && (
-        <GroupStageViewer
+      {/* TAB CONTENT 1: BẢNG ĐẤU & QUY TẮC */}
+      {activeTab === 'STANDINGS' && hasGroupStage && (
+        <GroupStandingsTab
           tournament={tournament}
           onSelectMatch={handleMatchCardClick}
           isAdmin={isAdmin}
           onSwitchToBracket={() => setActiveTab('BRACKET')}
+          onSwitchToSchedule={() => setActiveTab('GROUP_SCHEDULE')}
         />
       )}
 
-      {/* TAB CONTENT 2: BRACKET TREE */}
+      {/* TAB CONTENT 2: LỊCH THI ĐẤU VÒNG BẢNG (CHIA 2 CỘT TỪNG BẢNG) */}
+      {activeTab === 'GROUP_SCHEDULE' && hasGroupStage && (
+        <GroupScheduleTab
+          tournament={tournament}
+          onSelectMatch={handleMatchCardClick}
+          isAdmin={isAdmin}
+        />
+      )}
+
+      {/* TAB CONTENT 3: BRACKET TREE */}
       {activeTab === 'BRACKET' && hasKnockout && (
         <div className="space-y-4">
           <BracketViewer

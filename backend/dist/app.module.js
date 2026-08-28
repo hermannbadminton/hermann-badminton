@@ -14,6 +14,7 @@ const auth_module_1 = require("./modules/auth/auth.module");
 const tournaments_module_1 = require("./modules/tournaments/tournaments.module");
 const teams_module_1 = require("./modules/teams/teams.module");
 const matches_module_1 = require("./modules/matches/matches.module");
+const app_controller_1 = require("./app.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,7 +31,7 @@ exports.AppModule = AppModule = __decorate([
             teams_module_1.TeamsModule,
             matches_module_1.MatchesModule,
         ],
-        controllers: [],
+        controllers: [app_controller_1.AppController],
         providers: [],
     })
 ], AppModule);

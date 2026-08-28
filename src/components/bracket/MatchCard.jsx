@@ -72,7 +72,15 @@ export default function MatchCard({ match, onSelect, isAdmin }) {
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <span className="text-sm">{match.team1?.avatar || '🏸'}</span>
+          <img
+            src={
+              match.team1?.avatar && match.team1.avatar.startsWith('http')
+                ? match.team1.avatar
+                : 'https://img.bwfbadminton.com/image/upload/v2/assets/flag-circle-svg-custom/VIE.png'
+            }
+            alt="flag"
+            className="w-4 h-4 rounded-full object-cover shrink-0 shadow-2xs border border-slate-200/60"
+          />
           <div className="truncate">
             <p className="text-xs truncate font-semibold">
               {team1Name}
@@ -114,7 +122,15 @@ export default function MatchCard({ match, onSelect, isAdmin }) {
         }`}
       >
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <span className="text-sm">{match.team2?.avatar || '🏸'}</span>
+          <img
+            src={
+              match.team2?.avatar && match.team2.avatar.startsWith('http')
+                ? match.team2.avatar
+                : 'https://img.bwfbadminton.com/image/upload/v2/assets/flag-circle-svg-custom/VIE.png'
+            }
+            alt="flag"
+            className="w-4 h-4 rounded-full object-cover shrink-0 shadow-2xs border border-slate-200/60"
+          />
           <div className="truncate">
             <p className="text-xs truncate font-semibold">
               {team2Name}

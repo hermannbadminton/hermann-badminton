@@ -26,14 +26,20 @@ export class UpdateMatchScoreDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SetScoreDto)
-  @IsNotEmpty()
-  setScores: SetScoreDto[];
+  @IsOptional()
+  setScores?: SetScoreDto[];
 
   @IsOptional()
   winnerId?: string;
 
   @IsOptional()
   status?: MatchStatus;
+
+  @IsOptional()
+  scheduledTime?: string;
+
+  @IsOptional()
+  court?: string;
 }
 
 export interface SetResult {
@@ -132,128 +138,142 @@ export class MatchesService {
       match = found;
     }
 
-    if (!match.team1Id || !match.team2Id) {
-      throw new BadRequestException('Trận đấu chưa đủ 2 đội tham gia');
+    if (dto.scheduledTime !== undefined) {
+      match.scheduledTime = dto.scheduledTime;
+    }
+    if (dto.court !== undefined) {
+      match.court = dto.court;
     }
 
-    const setsToWinMatch = Math.ceil(tournamentRules.maxSets / 2);
-    let team1WonSets = 0;
-    let team2WonSets = 0;
+    if (dto.setScores && dto.setScores.length > 0) {
+      const setsToWinMatch = Math.ceil(tournamentRules.maxSets / 2);
+      let team1WonSets = 0;
+      let team2WonSets = 0;
 
-    const validatedSets: SetResult[] = [];
-    for (const set of dto.setScores) {
-      const winnerId = this.determineSetWinner(
-        set,
-        match.team1Id,
-        match.team2Id,
-        tournamentRules.pointsToWinSet,
-        tournamentRules.maxPointsCap,
-      );
+      const validatedSets: SetResult[] = [];
+      for (const set of dto.setScores) {
+        const winnerId = this.determineSetWinner(
+          set,
+          match.team1Id || '',
+          match.team2Id || '',
+          tournamentRules.pointsToWinSet,
+          tournamentRules.maxPointsCap,
+        );
 
-      if (winnerId === match.team1Id) team1WonSets++;
-      if (winnerId === match.team2Id) team2WonSets++;
+        if (winnerId === match.team1Id) team1WonSets++;
+        if (winnerId === match.team2Id) team2WonSets++;
 
-      validatedSets.push({
-        ...set,
-        winnerTeamId: winnerId || undefined,
-      });
-    }
+        validatedSets.push({
+          ...set,
+          winnerTeamId: winnerId || undefined,
+        });
+      }
 
-    match.setScores = validatedSets;
+      match.setScores = validatedSets;
 
-    // Xác định đội chiến thắng (ưu tiên winnerId từ payload nếu truyền lên)
-    const calculatedWinnerId =
-      team1WonSets > team2WonSets
-        ? match.team1Id
-        : team2WonSets > team1WonSets
-        ? match.team2Id
-        : null;
+      // Xác định đội chiến thắng (ưu tiên winnerId từ payload nếu truyền lên)
+      const calculatedWinnerId =
+        team1WonSets > team2WonSets
+          ? match.team1Id
+          : team2WonSets > team1WonSets
+          ? match.team2Id
+          : null;
 
-    const effectiveWinnerId =
-      dto.winnerId && String(dto.winnerId).trim() !== ''
-        ? String(dto.winnerId).trim()
-        : calculatedWinnerId;
+      const effectiveWinnerId =
+        dto.winnerId && String(dto.winnerId).trim() !== ''
+          ? String(dto.winnerId).trim()
+          : calculatedWinnerId;
 
-    const isCompleted =
-      Boolean(effectiveWinnerId) ||
-      team1WonSets >= setsToWinMatch ||
-      team2WonSets >= setsToWinMatch ||
-      (dto.setScores.length === 1 && (team1WonSets === 1 || team2WonSets === 1));
+      const isCompleted =
+        Boolean(effectiveWinnerId) ||
+        team1WonSets >= setsToWinMatch ||
+        team2WonSets >= setsToWinMatch ||
+        (dto.setScores.length === 1 && (team1WonSets === 1 || team2WonSets === 1));
 
-    if (isCompleted && effectiveWinnerId) {
-      match.winnerId = effectiveWinnerId;
-      match.status = dto.status || MatchStatus.COMPLETED;
+      if (isCompleted && effectiveWinnerId) {
+        match.winnerId = effectiveWinnerId;
+        match.status = dto.status || MatchStatus.COMPLETED;
 
-      // LẤY TRẬN TIẾP THEO (NEXT_MATCH_ID) VÀ CẬP NHẬT THEO NEXT_MATCH_SLOT
-      if (match.nextMatchId) {
-        if (supabase) {
-          try {
-            const { data: nextMatch, error: nextErr } = await supabase
-              .from('matches')
-              .select('*')
-              .eq('id', match.nextMatchId)
-              .single();
+        // LẤY TRẬN TIẾP THEO (NEXT_MATCH_ID) VÀ CẬP NHẬT THEO NEXT_MATCH_SLOT
+        if (match.nextMatchId) {
+          if (supabase) {
+            try {
+              const { data: nextMatch, error: nextErr } = await supabase
+                .from('matches')
+                .select('*')
+                .eq('id', match.nextMatchId)
+                .single();
 
-            if (!nextErr && nextMatch) {
-              const slot = Number(match.nextMatchSlot);
-              let updateSlot: any = {};
+              if (!nextErr && nextMatch) {
+                const slot = Number(match.nextMatchSlot);
+                let updateSlot: any = {};
 
-              if (slot === 1) {
-                updateSlot = { team1_id: effectiveWinnerId };
-              } else if (slot === 2) {
-                updateSlot = { team2_id: effectiveWinnerId };
-              } else {
-                // Nếu chưa có next_match_slot: tìm ô trống để điền
-                if (!nextMatch.team1_id) {
+                if (slot === 1) {
                   updateSlot = { team1_id: effectiveWinnerId };
-                } else if (!nextMatch.team2_id) {
+                } else if (slot === 2) {
                   updateSlot = { team2_id: effectiveWinnerId };
                 } else {
-                  updateSlot = { team1_id: effectiveWinnerId };
+                  if (!nextMatch.team1_id) {
+                    updateSlot = { team1_id: effectiveWinnerId };
+                  } else if (!nextMatch.team2_id) {
+                    updateSlot = { team2_id: effectiveWinnerId };
+                  } else {
+                    updateSlot = { team1_id: effectiveWinnerId };
+                  }
                 }
+
+                await supabase
+                  .from('matches')
+                  .update(updateSlot)
+                  .eq('id', match.nextMatchId);
+
+                console.log(`✅ Đã cập nhật đội thắng ${effectiveWinnerId} vào trận kế tiếp ${match.nextMatchId} (Slot ${slot || 1})`);
               }
-
-              await supabase
-                .from('matches')
-                .update(updateSlot)
-                .eq('id', match.nextMatchId);
-
-              console.log(`✅ Đã cập nhật đội thắng ${effectiveWinnerId} vào trận kế tiếp ${match.nextMatchId} (Slot ${slot || 1})`);
+            } catch (nextMatchUpdateError) {
+              console.warn('Lỗi cập nhật trận đấu tiếp theo:', nextMatchUpdateError.message);
             }
-          } catch (nextMatchUpdateError) {
-            console.warn('Lỗi cập nhật trận đấu tiếp theo:', nextMatchUpdateError.message);
-          }
-        } else {
-          const nextMatch = this.inMemoryMatches.get(match.nextMatchId);
-          if (nextMatch) {
-            const slot = Number(match.nextMatchSlot);
-            if (slot === 1) {
-              nextMatch.team1Id = effectiveWinnerId;
-            } else if (slot === 2) {
-              nextMatch.team2Id = effectiveWinnerId;
-            } else {
-              if (!nextMatch.team1Id) nextMatch.team1Id = effectiveWinnerId;
-              else nextMatch.team2Id = effectiveWinnerId;
+          } else {
+            const nextMatch = this.inMemoryMatches.get(match.nextMatchId);
+            if (nextMatch) {
+              const slot = Number(match.nextMatchSlot);
+              if (slot === 1) {
+                nextMatch.team1Id = effectiveWinnerId;
+              } else if (slot === 2) {
+                nextMatch.team2Id = effectiveWinnerId;
+              } else {
+                if (!nextMatch.team1Id) nextMatch.team1Id = effectiveWinnerId;
+                else nextMatch.team2Id = effectiveWinnerId;
+              }
+              this.inMemoryMatches.set(nextMatch.id, nextMatch);
             }
-            this.inMemoryMatches.set(nextMatch.id, nextMatch);
           }
         }
+      } else {
+        match.status = validatedSets.some((s) => s.team1Score > 0 || s.team2Score > 0)
+          ? MatchStatus.IN_PROGRESS
+          : (dto.status || match.status || MatchStatus.SCHEDULED);
+        if (!dto.winnerId) {
+          match.winnerId = null;
+        }
       }
-    } else {
-      match.status = validatedSets.some((s) => s.team1Score > 0 || s.team2Score > 0)
-        ? MatchStatus.IN_PROGRESS
-        : MatchStatus.SCHEDULED;
-      match.winnerId = null;
     }
 
     if (supabase) {
+      const updateData: any = {
+        set_scores: match.setScores,
+        status: match.status,
+        winner_id: match.winnerId,
+      };
+      if (match.scheduledTime !== undefined) {
+        updateData.scheduled_time = match.scheduledTime;
+      }
+      if (match.court !== undefined) {
+        updateData.court = match.court;
+      }
+
       const { data, error } = await supabase
         .from('matches')
-        .update({
-          set_scores: match.setScores,
-          status: match.status,
-          winner_id: match.winnerId,
-        })
+        .update(updateData)
         .eq('id', matchId)
         .select()
         .single();

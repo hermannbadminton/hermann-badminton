@@ -32,10 +32,16 @@ export default function AdvanceKnockoutModal({
   // State: danh sách ID các đội được chọn vào vòng trong
   const [selectedTeamIds, setSelectedTeamIds] = useState(() => {
     const initialIds = [];
-    const defaultAdvancing = tournament.advancingPerGroup || 2;
+    const isSingle = groupNames.length === 1;
     groupNames.forEach((gName) => {
       const groupTeams = standings[gName] || [];
-      groupTeams.slice(0, defaultAdvancing).forEach((item) => {
+      // Nếu 1 bảng: lấy 4 đội; nếu nhiều bảng: >= 4 đội lấy 2 đội (Nhất + Nhì), < 4 đội lấy 1 đội (Nhất)
+      const advancingForThisGroup = isSingle
+        ? Math.min(4, groupTeams.length)
+        : groupTeams.length >= 4
+        ? 2
+        : (tournament.advancingPerGroup || 1);
+      groupTeams.slice(0, advancingForThisGroup).forEach((item) => {
         if (item.team?.id) initialIds.push(item.team.id);
       });
     });
@@ -72,8 +78,15 @@ export default function AdvanceKnockoutModal({
       });
     });
 
+    // Trường hợp 1 bảng: 4 đội -> Bán kết (Top 1 vs Top 4, Top 2 vs Top 3)
+    if (groupNames.length === 1 && pairCount === 2 && selectedTeamsList.length >= 4) {
+      newPairs.push(
+        { team1Id: selectedTeamsList[0]?.id || '', team2Id: selectedTeamsList[3]?.id || '' }, // Top 1 vs Top 4
+        { team1Id: selectedTeamsList[1]?.id || '', team2Id: selectedTeamsList[2]?.id || '' }  // Top 2 vs Top 3
+      );
+    }
     // Mặc định chéo bảng nếu có 2 bảng (A vs B)
-    if (groupNames.length === 2 && selectedTeamsList.length >= 2) {
+    else if (groupNames.length === 2 && selectedTeamsList.length >= 2) {
       const topA = selectedTeamsList.filter((t) => t.groupName === 'Bảng A');
       const topB = selectedTeamsList.filter((t) => t.groupName === 'Bảng B');
 
