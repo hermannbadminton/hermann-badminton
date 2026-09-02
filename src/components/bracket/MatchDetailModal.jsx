@@ -68,9 +68,9 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-5">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
           {/* Unified Scoreboard Card */}
-          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs">
+          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 shadow-xs">
             {/* Round Badge at top of card */}
             <div className="flex items-center justify-center mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-emerald-800 text-xs font-extrabold rounded-full border border-slate-200 shadow-2xs">
@@ -78,32 +78,34 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
               </span>
             </div>
 
-            {/* Teams Header */}
-            <div className="grid grid-cols-5 items-center gap-2 text-center pb-4 border-b border-slate-200/60">
+            {/* Teams Header - Responsive Flex Layout */}
+            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-200/60">
               {/* Team 1 Info */}
-              <div className="col-span-2">
+              <div className="flex-1 min-w-0 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Đội 1</span>
                 <h4
-                  className={`text-sm font-bold truncate mt-0.5 ${team1IsWinner ? 'text-emerald-700' : 'text-slate-900'}`}
+                  className={`text-xs sm:text-sm font-bold leading-snug mt-0.5 break-words ${
+                    team1IsWinner ? 'text-emerald-700 font-extrabold' : 'text-slate-900'
+                  }`}
                   title={team1Name}
                 >
                   {team1Name}
                 </h4>
                 {team1IsWinner && (
-                  <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-extrabold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">
+                  <span className="inline-flex items-center gap-1 mt-1 text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full whitespace-nowrap shadow-2xs">
                     Thắng Cuộc 🏆
                   </span>
                 )}
               </div>
 
               {/* Match Score or VS in center */}
-              <div className="col-span-1 flex flex-col items-center justify-center">
+              <div className="shrink-0 px-2 sm:px-3 flex flex-col items-center justify-center">
                 {isCompleted ? (
-                  <div className="flex flex-col items-center">
-                    <span className="text-xl font-black font-mono text-slate-800">
+                  <div className="flex flex-col items-center bg-white border border-slate-200/80 px-2.5 sm:px-3.5 py-1 rounded-xl shadow-2xs">
+                    <span className="text-base sm:text-xl font-black font-mono text-slate-800 whitespace-nowrap tracking-wider">
                       {team1Wins} - {team2Wins}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase">Set</span>
+                    <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-widest">Set</span>
                   </div>
                 ) : (
                   <span className="w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 font-black text-[10px] flex items-center justify-center shadow-xs">
@@ -113,16 +115,18 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
               </div>
 
               {/* Team 2 Info */}
-              <div className="col-span-2">
+              <div className="flex-1 min-w-0 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Đội 2</span>
                 <h4
-                  className={`text-sm font-bold truncate mt-0.5 ${team2IsWinner ? 'text-emerald-700' : 'text-slate-900'}`}
+                  className={`text-xs sm:text-sm font-bold leading-snug mt-0.5 break-words ${
+                    team2IsWinner ? 'text-emerald-700 font-extrabold' : 'text-slate-900'
+                  }`}
                   title={team2Name}
                 >
                   {team2Name}
                 </h4>
                 {team2IsWinner && (
-                  <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-extrabold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">
+                  <span className="inline-flex items-center gap-1 mt-1 text-[9px] sm:text-[10px] font-extrabold uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full whitespace-nowrap shadow-2xs">
                     Thắng Cuộc 🏆
                   </span>
                 )}

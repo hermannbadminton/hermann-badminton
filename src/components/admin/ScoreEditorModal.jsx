@@ -179,27 +179,27 @@ export default function ScoreEditorModal({ match, onClose }) {
               </span>
             </div>
 
-            {/* Teams Header */}
-            <div className="grid grid-cols-5 items-center gap-2 text-center pb-4 border-b border-slate-200/60">
+            {/* Teams Header - Responsive Flex Layout */}
+            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-200/60">
               {/* Team 1 Info */}
-              <div className="col-span-2">
+              <div className="flex-1 min-w-0 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Đội 1</span>
-                <h4 className="text-sm font-bold text-slate-900 truncate mt-0.5" title={team1Name}>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug mt-0.5 break-words" title={team1Name}>
                   {team1Name}
                 </h4>
               </div>
 
               {/* VS Divider */}
-              <div className="col-span-1 flex flex-col items-center justify-center">
+              <div className="shrink-0 px-2 sm:px-3 flex flex-col items-center justify-center">
                 <span className="w-7 h-7 rounded-full bg-white border border-slate-200 text-slate-400 font-black text-[10px] flex items-center justify-center shadow-xs">
                   VS
                 </span>
               </div>
 
               {/* Team 2 Info */}
-              <div className="col-span-2">
+              <div className="flex-1 min-w-0 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Đội 2</span>
-                <h4 className="text-sm font-bold text-slate-900 truncate mt-0.5" title={team2Name}>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug mt-0.5 break-words" title={team2Name}>
                   {team2Name}
                 </h4>
               </div>
