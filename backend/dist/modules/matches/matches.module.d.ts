@@ -4,6 +4,8 @@ export declare class SetScoreDto {
     setNumber: number;
     team1Score: number;
     team2Score: number;
+    videoUrl?: string;
+    winnerTeamId?: string;
 }
 export declare class UpdateMatchScoreDto {
     setScores?: SetScoreDto[];
@@ -11,12 +13,14 @@ export declare class UpdateMatchScoreDto {
     status?: MatchStatus;
     scheduledTime?: string;
     court?: string;
+    videoUrl?: string;
 }
 export interface SetResult {
     setNumber: number;
     team1Score: number;
     team2Score: number;
     winnerTeamId?: string;
+    videoUrl?: string;
 }
 export interface MatchEntity {
     id: string;
@@ -31,6 +35,7 @@ export interface MatchEntity {
     winnerId: string | null;
     court?: string;
     scheduledTime?: string;
+    videoUrl?: string;
     setScores: SetResult[];
     status: MatchStatus;
     nextMatchId: string | null;

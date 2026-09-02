@@ -6,6 +6,7 @@ export declare class SetScore {
     team1Score: number;
     team2Score: number;
     winnerTeamId?: string;
+    videoUrl?: string;
 }
 export declare const SetScoreSchema: import("mongoose").Schema<SetScore, import("mongoose").Model<SetScore, any, any, any, any, any, SetScore>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, SetScore, Document<unknown, {}, SetScore, {
     id: string;
@@ -52,6 +53,15 @@ export declare const SetScoreSchema: import("mongoose").Schema<SetScore, import(
     }, "id"> & import("mongoose").HydratedDocumentOverrides<{
         id: string;
     }>>;
+    videoUrl?: import("mongoose").SchemaDefinitionProperty<string, SetScore, Document<unknown, {}, SetScore, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<SetScore & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & import("mongoose").HydratedDocumentOverrides<{
+        id: string;
+    }>>;
 }, SetScore>;
 export declare class Match {
     tournamentId: string;
@@ -65,6 +75,7 @@ export declare class Match {
     winnerId: string | null;
     court?: string;
     scheduledTime?: string;
+    videoUrl?: string;
     setScores: SetScore[];
     status: MatchStatus;
     nextMatchId: string | null;
@@ -170,6 +181,15 @@ export declare const MatchSchema: import("mongoose").Schema<Match, import("mongo
         id: string;
     }>>;
     scheduledTime?: import("mongoose").SchemaDefinitionProperty<string, Match, Document<unknown, {}, Match, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Match & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & import("mongoose").HydratedDocumentOverrides<{
+        id: string;
+    }>>;
+    videoUrl?: import("mongoose").SchemaDefinitionProperty<string, Match, Document<unknown, {}, Match, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Match & {
         _id: import("mongoose").Types.ObjectId;

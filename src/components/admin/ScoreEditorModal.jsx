@@ -21,7 +21,7 @@ export default function ScoreEditorModal({ match, onClose }) {
         setNumber: s.setNumber,
         team1Score: Number(s.team1Score) || 0,
         team2Score: Number(s.team2Score) || 0,
-        videoUrl: s.videoUrl || '',
+        videoUrl: s.videoUrl || s.video_url || '',
       }));
     }
     const count = Number(tournament?.maxSets ?? tournament?.max_sets ?? 1);

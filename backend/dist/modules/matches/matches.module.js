@@ -40,6 +40,16 @@ __decorate([
     (0, class_validator_1.Max)(35),
     __metadata("design:type", Number)
 ], SetScoreDto.prototype, "team2Score", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], SetScoreDto.prototype, "videoUrl", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], SetScoreDto.prototype, "winnerTeamId", void 0);
 class UpdateMatchScoreDto {
 }
 exports.UpdateMatchScoreDto = UpdateMatchScoreDto;
@@ -66,6 +76,11 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateMatchScoreDto.prototype, "court", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], UpdateMatchScoreDto.prototype, "videoUrl", void 0);
 let MatchesService = class MatchesService {
     constructor(supabaseService) {
         this.supabaseService = supabaseService;
@@ -133,6 +148,9 @@ let MatchesService = class MatchesService {
         if (dto.court !== undefined) {
             match.court = dto.court;
         }
+        if (dto.videoUrl !== undefined) {
+            match.videoUrl = dto.videoUrl;
+        }
         if (dto.setScores && dto.setScores.length > 0) {
             const setsToWinMatch = Math.ceil(tournamentRules.maxSets / 2);
             let team1WonSets = 0;
@@ -145,8 +163,11 @@ let MatchesService = class MatchesService {
                 if (winnerId === match.team2Id)
                     team2WonSets++;
                 validatedSets.push({
-                    ...set,
+                    setNumber: set.setNumber,
+                    team1Score: Number(set.team1Score) || 0,
+                    team2Score: Number(set.team2Score) || 0,
                     winnerTeamId: winnerId || undefined,
+                    videoUrl: set.videoUrl ? String(set.videoUrl).trim() : '',
                 });
             }
             match.setScores = validatedSets;

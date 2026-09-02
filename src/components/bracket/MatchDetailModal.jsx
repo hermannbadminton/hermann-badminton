@@ -180,10 +180,10 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
                       </div>
 
                       {/* Video Link Button if attached */}
-                      {set.videoUrl && (
+                      {(set.videoUrl || set.video_url) && (
                         <div className="pt-2 border-t border-slate-100 flex justify-center">
                           <a
-                            href={set.videoUrl}
+                            href={set.videoUrl || set.video_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200/80 rounded-xl text-xs font-bold transition-all shadow-2xs group"

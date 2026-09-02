@@ -31,6 +31,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], SetScore.prototype, "winnerTeamId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], SetScore.prototype, "videoUrl", void 0);
 exports.SetScore = SetScore = __decorate([
     (0, mongoose_1.Schema)({ _id: false })
 ], SetScore);
@@ -82,6 +86,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Match.prototype, "scheduledTime", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Match.prototype, "videoUrl", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: [exports.SetScoreSchema], default: [] }),
     __metadata("design:type", Array)

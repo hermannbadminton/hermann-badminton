@@ -24,6 +24,10 @@ export class SetScoreDto {
   @IsOptional()
   @IsString()
   videoUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  winnerTeamId?: string;
 }
 
 export class UpdateMatchScoreDto {
@@ -177,9 +181,11 @@ export class MatchesService {
         if (winnerId === match.team2Id) team2WonSets++;
 
         validatedSets.push({
-          ...set,
+          setNumber: set.setNumber,
+          team1Score: Number(set.team1Score) || 0,
+          team2Score: Number(set.team2Score) || 0,
           winnerTeamId: winnerId || undefined,
-          videoUrl: set.videoUrl ? String(set.videoUrl).trim() : undefined,
+          videoUrl: set.videoUrl ? String(set.videoUrl).trim() : '',
         });
       }
 
