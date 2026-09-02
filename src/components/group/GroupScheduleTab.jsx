@@ -9,6 +9,7 @@ import {
   Edit3,
   Eye,
   Trophy,
+  Video,
 } from 'lucide-react';
 
 // Hàm định dạng ngày giờ thi đấu hiển thị đầy đủ ngày/tháng/năm và giờ:phút
@@ -207,13 +208,30 @@ export default function GroupScheduleTab({
                               </span>
                             )}
 
+                            {/* Badge Video nếu có link YouTube */}
+                            {(m.videoUrl || (m.setScores && m.setScores.some((s) => Boolean(s.videoUrl)))) && (
+                              <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-red-50 text-red-600 px-2 py-0.5 rounded-md border border-red-200/70 shadow-2xs">
+                                <Video className="w-3 h-3 text-red-600" />
+                                Video
+                              </span>
+                            )}
 
                           </div>
 
                           {/* Bên phải: Trạng thái trận đấu */}
                           <div className="shrink-0">
-                            {/* Thời gian thi đấu */}
-                            {sched.hasSchedule ? (
+                            {/* Thời gian thi đấu & Trạng thái */}
+                            {isCompleted ? (
+                              <span className="inline-flex items-center gap-1 font-medium text-slate-600">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                Đã thi đấu
+                              </span>
+                            ) : isInProgress ? (
+                              <span className="inline-flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 animate-pulse">
+                                <Flame className="w-3 h-3 text-amber-500" />
+                                Đang thi đấu
+                              </span>
+                            ) : sched.hasSchedule ? (
                               <div className="flex items-center gap-1.5 text-slate-500 text-[12px] font-medium">
                                 {sched.dateText && (
                                   <span className="inline-flex items-center gap-1">
@@ -229,7 +247,7 @@ export default function GroupScheduleTab({
                                 )}
                               </div>
                             ) : (
-                              <span className="inline-flex items-center gap-1">
+                              <span className="inline-flex items-center gap-1 text-slate-400">
                                 Chưa có thời gian thi đấu
                               </span>
                             )}

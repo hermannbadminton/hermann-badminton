@@ -1,6 +1,6 @@
 import { Module, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Controller, Get, Patch, Post, Body, Param } from '@nestjs/common';
-import { IsInt, Min, Max, IsArray, ValidateNested, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsInt, Min, Max, IsArray, ValidateNested, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MatchStatus } from '../../common/enums/tournament-status.enum';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -20,6 +20,10 @@ export class SetScoreDto {
   @Min(0)
   @Max(35)
   team2Score: number;
+
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
 }
 
 export class UpdateMatchScoreDto {
@@ -40,6 +44,10 @@ export class UpdateMatchScoreDto {
 
   @IsOptional()
   court?: string;
+
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
 }
 
 export interface SetResult {
@@ -47,6 +55,7 @@ export interface SetResult {
   team1Score: number;
   team2Score: number;
   winnerTeamId?: string;
+  videoUrl?: string;
 }
 
 export interface MatchEntity {
@@ -62,6 +71,7 @@ export interface MatchEntity {
   winnerId: string | null;
   court?: string;
   scheduledTime?: string;
+  videoUrl?: string;
   setScores: SetResult[];
   status: MatchStatus;
   nextMatchId: string | null;
@@ -144,6 +154,9 @@ export class MatchesService {
     if (dto.court !== undefined) {
       match.court = dto.court;
     }
+    if (dto.videoUrl !== undefined) {
+      match.videoUrl = dto.videoUrl;
+    }
 
     if (dto.setScores && dto.setScores.length > 0) {
       const setsToWinMatch = Math.ceil(tournamentRules.maxSets / 2);
@@ -166,6 +179,7 @@ export class MatchesService {
         validatedSets.push({
           ...set,
           winnerTeamId: winnerId || undefined,
+          videoUrl: set.videoUrl ? String(set.videoUrl).trim() : undefined,
         });
       }
 

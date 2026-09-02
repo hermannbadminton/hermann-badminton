@@ -17,6 +17,9 @@ export class SetScore {
 
   @Prop()
   winnerTeamId?: string;
+
+  @Prop()
+  videoUrl?: string;
 }
 
 export const SetScoreSchema = SchemaFactory.createForClass(SetScore);
@@ -55,6 +58,9 @@ export class Match {
 
   @Prop()
   scheduledTime?: string;
+
+  @Prop()
+  videoUrl?: string;
 
   @Prop({ type: [SetScoreSchema], default: [] })
   setScores: SetScore[];

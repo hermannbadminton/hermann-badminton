@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTournament } from '../../context/TournamentContext';
 import { usePreventBodyScroll } from '../../hooks/usePreventBodyScroll';
-import { Shield, X } from 'lucide-react';
+import { Shield, X, Video, ExternalLink, SquarePlay } from 'lucide-react';
 
 export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
   usePreventBodyScroll(!!match);
@@ -35,6 +35,17 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
     if (s1 > s2 && (s1 >= 21 || s.winnerTeamId === t1Id)) team1Wins++;
     else if (s2 > s1 && (s2 >= 21 || s.winnerTeamId === t2Id)) team2Wins++;
   });
+
+  // Lọc các set hiển thị: nếu trận đấu đã kết thúc thì chỉ hiển thị các set thực tế đã đấu
+  let displaySets = sets;
+  if (isCompleted) {
+    const playedSets = sets.filter(
+      (s) => Number(s.team1Score) > 0 || Number(s.team2Score) > 0
+    );
+    if (playedSets.length > 0) {
+      displaySets = playedSets;
+    }
+  }
 
   return createPortal(
     <div className="fixed inset-0 z-[99999] w-screen h-screen min-h-screen flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
@@ -119,49 +130,69 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
             </div>
 
             {/* Set Scores List */}
-            <div className="pt-4 space-y-2.5">
-              {sets.length > 0 ? (
-                sets.map((set) => {
+            <div className="pt-4 space-y-3">
+              {displaySets.length > 0 ? (
+                displaySets.map((set) => {
                   const s1 = Number(set.team1Score) || 0;
                   const s2 = Number(set.team2Score) || 0;
                   const s1Won = s1 > s2 && (s1 >= 21 || set.winnerTeamId === t1Id);
                   const s2Won = s2 > s1 && (s2 >= 21 || set.winnerTeamId === t2Id);
 
                   return (
-                    <div key={set.setNumber} className="flex items-center justify-between gap-3">
-                      {/* Team 1 Score Box */}
-                      <div className="flex-1 flex justify-center">
-                        <div
-                          className={`w-16 h-11 flex items-center justify-center text-lg font-black font-mono rounded-xl border shadow-xs ${
-                            s1Won
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-black'
-                              : 'bg-white border-slate-200 text-slate-800'
-                          }`}
-                        >
-                          {s1}
+                    <div
+                      key={set.setNumber}
+                      className="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        {/* Team 1 Score Box */}
+                        <div className="flex-1 flex justify-center">
+                          <div
+                            className={`w-16 h-11 flex items-center justify-center text-lg font-black font-mono rounded-xl border shadow-xs ${
+                              s1Won
+                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-black'
+                                : 'bg-slate-50 border-slate-200 text-slate-800'
+                            }`}
+                          >
+                            {s1}
+                          </div>
+                        </div>
+
+                        {/* Set Info in Center */}
+                        <div className="shrink-0 flex flex-col items-center justify-center px-2">
+                          <span className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                            Set {set.setNumber}
+                          </span>
+                          <span className="text-slate-300 font-bold text-xs">:</span>
+                        </div>
+
+                        {/* Team 2 Score Box */}
+                        <div className="flex-1 flex justify-center">
+                          <div
+                            className={`w-16 h-11 flex items-center justify-center text-lg font-black font-mono rounded-xl border shadow-xs ${
+                              s2Won
+                                ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-black'
+                                : 'bg-slate-50 border-slate-200 text-slate-800'
+                            }`}
+                          >
+                            {s2}
+                          </div>
                         </div>
                       </div>
 
-                      {/* Set Info in Center */}
-                      <div className="shrink-0 flex flex-col items-center justify-center px-2">
-                        <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-                          Set {set.setNumber}
-                        </span>
-                        <span className="text-slate-300 font-bold text-xs">:</span>
-                      </div>
-
-                      {/* Team 2 Score Box */}
-                      <div className="flex-1 flex justify-center">
-                        <div
-                          className={`w-16 h-11 flex items-center justify-center text-lg font-black font-mono rounded-xl border shadow-xs ${
-                            s2Won
-                              ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-black'
-                              : 'bg-white border-slate-200 text-slate-800'
-                          }`}
-                        >
-                          {s2}
+                      {/* Video Link Button if attached */}
+                      {set.videoUrl && (
+                        <div className="pt-2 border-t border-slate-100 flex justify-center">
+                          <a
+                            href={set.videoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200/80 rounded-xl text-xs font-bold transition-all shadow-2xs group"
+                          >
+                            <Video className="w-3.5 h-3.5 text-red-600 group-hover:scale-110 transition-transform" />
+                            <span>Theo dõi SET {set.setNumber}</span>
+                          </a>
                         </div>
-                      </div>
+                      )}
                     </div>
                   );
                 })
@@ -171,6 +202,22 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
                 </div>
               )}
             </div>
+
+            {/* Match level Video Link (nếu có) */}
+            {match.videoUrl && (
+              <div className="flex justify-center pt-2">
+                <a
+                  href={match.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                >
+                  <Video className="w-4 h-4" />
+                  <span>Xem Toàn Bộ Trận Đấu</span>
+                  <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Footer Actions */}

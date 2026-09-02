@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTournament } from '../../context/TournamentContext';
 import { usePreventBodyScroll } from '../../hooks/usePreventBodyScroll';
-import { Trophy, Shield, CheckCircle2, AlertCircle, X, Calendar, Clock, MapPin } from 'lucide-react';
+import { Trophy, Shield, CheckCircle2, AlertCircle, X, Calendar, Clock, MapPin, Video } from 'lucide-react';
 
 export default function ScoreEditorModal({ match, onClose }) {
   usePreventBodyScroll(true);
@@ -21,12 +21,13 @@ export default function ScoreEditorModal({ match, onClose }) {
         setNumber: s.setNumber,
         team1Score: Number(s.team1Score) || 0,
         team2Score: Number(s.team2Score) || 0,
+        videoUrl: s.videoUrl || '',
       }));
     }
     const count = Number(tournament?.maxSets ?? tournament?.max_sets ?? 1);
     const sets = [];
     for (let i = 1; i <= Math.max(1, count); i++) {
-      sets.push({ setNumber: i, team1Score: 0, team2Score: 0 });
+      sets.push({ setNumber: i, team1Score: 0, team2Score: 0, videoUrl: '' });
     }
     return sets;
   };
@@ -58,6 +59,12 @@ export default function ScoreEditorModal({ match, onClose }) {
     const parsed = Math.max(0, Math.min(tournament.maxPointsCap || 30, Number(val) || 0));
     const newSets = [...sets];
     newSets[index][team] = parsed;
+    setSets(newSets);
+  };
+
+  const handleVideoUrlChange = (index, val) => {
+    const newSets = [...sets];
+    newSets[index].videoUrl = val;
     setSets(newSets);
   };
 
@@ -199,38 +206,55 @@ export default function ScoreEditorModal({ match, onClose }) {
             </div>
 
             {/* Set Score Input Rows */}
-            <div className="pt-4 space-y-3">
+            <div className="pt-4 space-y-3.5">
               {sets.map((set, idx) => (
-                <div key={set.setNumber} className="flex items-center justify-between gap-3">
-                  {/* Team 1 Score Input */}
-                  <div className="flex-1 flex justify-center">
-                    <input
-                      type="number"
-                      min="0"
-                      max={tournament.maxPointsCap || 30}
-                      value={set.team1Score}
-                      onChange={(e) => handleScoreChange(idx, 'team1Score', e.target.value)}
-                      className="w-16 h-12 text-center text-xl font-black font-mono bg-white border-2 border-slate-200 hover:border-emerald-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 rounded-xl transition-all shadow-xs text-slate-900"
-                    />
+                <div key={set.setNumber} className="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2.5">
+                  {/* Score Inputs */}
+                  <div className="flex items-center justify-between gap-3">
+                    {/* Team 1 Score Input */}
+                    <div className="flex-1 flex justify-center">
+                      <input
+                        type="number"
+                        min="0"
+                        max={tournament.maxPointsCap || 30}
+                        value={set.team1Score}
+                        onChange={(e) => handleScoreChange(idx, 'team1Score', e.target.value)}
+                        className="w-16 h-11 text-center text-xl font-black font-mono bg-slate-50/80 border-2 border-slate-200 hover:border-emerald-400 focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 rounded-xl transition-all shadow-2xs text-slate-900"
+                      />
+                    </div>
+
+                    {/* Set Badge in Center */}
+                    <div className="shrink-0 flex flex-col items-center justify-center px-2">
+                      <span className="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">
+                        Set {set.setNumber}
+                      </span>
+                      <span className="text-slate-300 font-bold text-sm">:</span>
+                    </div>
+
+                    {/* Team 2 Score Input */}
+                    <div className="flex-1 flex justify-center">
+                      <input
+                        type="number"
+                        min="0"
+                        max={tournament.maxPointsCap || 30}
+                        value={set.team2Score}
+                        onChange={(e) => handleScoreChange(idx, 'team2Score', e.target.value)}
+                        className="w-16 h-11 text-center text-xl font-black font-mono bg-slate-50/80 border-2 border-slate-200 hover:border-emerald-400 focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 rounded-xl transition-all shadow-2xs text-slate-900"
+                      />
+                    </div>
                   </div>
 
-                  {/* Set Badge in Center */}
-                  <div className="shrink-0 flex flex-col items-center justify-center px-2">
-                    <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
-                      Set {set.setNumber}
-                    </span>
-                    <span className="text-slate-300 font-bold text-sm">:</span>
-                  </div>
-
-                  {/* Team 2 Score Input */}
-                  <div className="flex-1 flex justify-center">
+                  {/* YouTube Video URL Input for this Set */}
+                  <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-red-50 text-red-600 border border-red-200/60 flex items-center justify-center shrink-0" title="Gắn link YouTube video cho set này">
+                      <Video className="w-3.5 h-3.5" />
+                    </div>
                     <input
-                      type="number"
-                      min="0"
-                      max={tournament.maxPointsCap || 30}
-                      value={set.team2Score}
-                      onChange={(e) => handleScoreChange(idx, 'team2Score', e.target.value)}
-                      className="w-16 h-12 text-center text-xl font-black font-mono bg-white border-2 border-slate-200 hover:border-emerald-400 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 rounded-xl transition-all shadow-xs text-slate-900"
+                      type="url"
+                      placeholder={`Link YouTube video Set ${set.setNumber} (ví dụ: https://youtube.com/...)`}
+                      value={set.videoUrl || ''}
+                      onChange={(e) => handleVideoUrlChange(idx, e.target.value)}
+                      className="flex-1 text-[11px] bg-slate-50/60 border border-slate-200 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/10 rounded-lg px-2.5 py-1.5 text-slate-800 placeholder:text-slate-400 transition-all"
                     />
                   </div>
                 </div>

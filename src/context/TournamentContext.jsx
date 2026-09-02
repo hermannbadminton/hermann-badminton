@@ -260,6 +260,7 @@ export const TournamentProvider = ({ children }) => {
           team1Score: Number(set.team1Score) || 0,
           team2Score: Number(set.team2Score) || 0,
           winnerTeamId: winnerId || '',
+          videoUrl: set.videoUrl ? String(set.videoUrl).trim() : '',
         });
       }
     }

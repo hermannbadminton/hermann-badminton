@@ -1,9 +1,10 @@
 import React from 'react';
-import { Clock, MapPin, CheckCircle2, Flame, Edit3, Eye } from 'lucide-react';
+import { Clock, MapPin, CheckCircle2, Flame, Edit3, Eye, Video } from 'lucide-react';
 
 export default function MatchCard({ match, onSelect, isAdmin }) {
   const isCompleted = match.status === 'COMPLETED';
   const isInProgress = match.status === 'IN_PROGRESS';
+  const hasVideo = match.videoUrl || (match.setScores && match.setScores.some((s) => Boolean(s.videoUrl)));
 
   const isByeMatch = isCompleted && ((match.team1Id && !match.team2Id) || (!match.team1Id && match.team2Id));
 
@@ -31,6 +32,12 @@ export default function MatchCard({ match, onSelect, isAdmin }) {
           {match.court && (
             <span className="text-[10px] bg-slate-200/70 px-1.5 py-0.2 rounded text-slate-600">
               {match.court}
+            </span>
+          )}
+          {hasVideo && (
+            <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-red-600 bg-red-50 border border-red-200/70 px-1 py-0.2 rounded" title="Có video thi đấu">
+              <Video className="w-2.5 h-2.5 text-red-600" />
+              Video
             </span>
           )}
         </div>
