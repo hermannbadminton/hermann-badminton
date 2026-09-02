@@ -48,29 +48,29 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] w-screen h-screen min-h-screen flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-[99999] w-screen h-[100dvh] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm overflow-hidden">
       {/* Click outside to close backdrop */}
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative z-10 bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-auto">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-6 py-4 flex items-center justify-between">
+      <div className="relative z-10 bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-auto max-h-[82dvh] sm:max-h-[88dvh] flex flex-col">
+        {/* Sticky Header */}
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between shrink-0 shadow-xs">
           <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-bold">Chi Tiết Trận Đấu</h3>
+            <h3 className="text-sm sm:text-base font-bold">Chi Tiết Trận Đấu</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+        {/* Scrollable Content Body */}
+        <div className="p-3.5 sm:p-6 space-y-3.5 sm:space-y-5 overflow-y-auto flex-1 overscroll-contain">
           {/* Unified Scoreboard Card */}
-          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 shadow-xs">
+          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3 sm:p-5 shadow-xs">
             {/* Round Badge at top of card */}
             <div className="flex items-center justify-center mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-emerald-800 text-xs font-extrabold rounded-full border border-slate-200 shadow-2xs">
@@ -79,7 +79,7 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
             </div>
 
             {/* Teams Header - Responsive Flex Layout */}
-            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-200/60">
+            <div className="flex items-center justify-between gap-2 pb-3.5 border-b border-slate-200/60">
               {/* Team 1 Info */}
               <div className="flex-1 min-w-0 text-center">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Đội 1</span>
@@ -134,7 +134,7 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
             </div>
 
             {/* Set Scores List */}
-            <div className="pt-4 space-y-3">
+            <div className="pt-3.5 space-y-3">
               {displaySets.length > 0 ? (
                 displaySets.map((set) => {
                   const s1 = Number(set.team1Score) || 0;
@@ -151,7 +151,7 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
                         {/* Team 1 Score Box */}
                         <div className="flex-1 flex justify-center">
                           <div
-                            className={`w-16 h-11 flex items-center justify-center text-lg font-black font-mono rounded-xl border shadow-xs ${
+                            className={`w-14 sm:w-16 h-10 sm:h-11 flex items-center justify-center text-base sm:text-lg font-black font-mono rounded-xl border shadow-xs ${
                               s1Won
                                 ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-black'
                                 : 'bg-slate-50 border-slate-200 text-slate-800'
@@ -172,7 +172,7 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
                         {/* Team 2 Score Box */}
                         <div className="flex-1 flex justify-center">
                           <div
-                            className={`w-16 h-11 flex items-center justify-center text-lg font-black font-mono rounded-xl border shadow-xs ${
+                            className={`w-14 sm:w-16 h-10 sm:h-11 flex items-center justify-center text-base sm:text-lg font-black font-mono rounded-xl border shadow-xs ${
                               s2Won
                                 ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-black'
                                 : 'bg-slate-50 border-slate-200 text-slate-800'
@@ -223,31 +223,31 @@ export default function MatchDetailModal({ match, onClose, onSwitchToAdmin }) {
               </div>
             )}
           </div>
+        </div>
 
-          {/* Footer Actions */}
-          <div className="flex items-center justify-between pt-2">
+        {/* Sticky Dedicated Footer */}
+        <div className="px-4 sm:px-6 py-3 bg-slate-50 border-t border-slate-200/70 flex items-center justify-between shrink-0 shadow-xs">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+          >
+            Đóng
+          </button>
+
+          {isAdmin && onSwitchToAdmin && (
             <button
               type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+              onClick={() => {
+                onClose();
+                onSwitchToAdmin(match);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs cursor-pointer"
             >
-              Đóng
+              <Shield className="w-3.5 h-3.5" />
+              Cập Nhật Tỷ Số (Admin)
             </button>
-
-            {isAdmin && onSwitchToAdmin && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onSwitchToAdmin(match);
-                }}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-xs"
-              >
-                <Shield className="w-3.5 h-3.5" />
-                Cập Nhật Tỷ Số (Admin)
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>,

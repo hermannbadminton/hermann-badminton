@@ -103,27 +103,27 @@ export default function ScoreEditorModal({ match, onClose }) {
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[99999] w-screen h-screen min-h-screen flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-[99999] w-screen h-[100dvh] flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm overflow-hidden">
       {/* Click outside to close backdrop */}
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
-      <div className="relative z-10 bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-auto max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-6 py-4 flex items-center justify-between shrink-0">
+      <div className="relative z-10 bg-white w-full max-w-md rounded-3xl shadow-2xl border border-slate-100 overflow-hidden my-auto max-h-[82dvh] sm:max-h-[88dvh] flex flex-col">
+        {/* Sticky Header */}
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between shrink-0 shadow-xs">
           <div className="flex items-center gap-2.5">
-            <h3 className="text-base font-bold">Cập Nhật Thời Gian & Tỷ Số</h3>
+            <h3 className="text-sm sm:text-base font-bold">Cập Nhật Thời Gian & Tỷ Số</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+        {/* Content Form - Scrollable */}
+        <form onSubmit={handleSubmit} className="p-3.5 sm:p-6 space-y-3.5 sm:space-y-4 overflow-y-auto flex-1 overscroll-contain">
           {errorMsg && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -171,7 +171,7 @@ export default function ScoreEditorModal({ match, onClose }) {
           </div>
 
           {/* Unified Scoreboard Card */}
-          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs">
+          <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-3.5 sm:p-5 shadow-xs">
             {/* Round Badge at top */}
             <div className="flex items-center justify-center mb-3">
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-white text-emerald-800 text-xs font-extrabold rounded-full border border-slate-200 shadow-2xs">
@@ -270,24 +270,28 @@ export default function ScoreEditorModal({ match, onClose }) {
             </div>
           )}
 
-          {/* Modal Footer Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2.5 text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 rounded-xl shadow-md shadow-emerald-700/20 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Lưu Thông Tin & Tỷ Số</span>
-            </button>
-          </div>
+          {/* Hidden submit trigger */}
+          <button type="submit" id="score-editor-submit-btn" className="hidden" />
         </form>
+
+        {/* Sticky Dedicated Footer */}
+        <div className="px-4 sm:px-6 py-3 bg-slate-50 border-t border-slate-200/70 flex items-center justify-end gap-2.5 shrink-0 shadow-xs">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={() => document.getElementById('score-editor-submit-btn')?.click()}
+            className="px-5 py-2 text-xs font-extrabold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 rounded-xl shadow-md shadow-emerald-700/20 transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Lưu Thông Tin & Tỷ Số</span>
+          </button>
+        </div>
       </div>
     </div>,
     document.body
