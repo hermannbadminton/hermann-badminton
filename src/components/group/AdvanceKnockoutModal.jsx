@@ -33,14 +33,13 @@ export default function AdvanceKnockoutModal({
   const [selectedTeamIds, setSelectedTeamIds] = useState(() => {
     const initialIds = [];
     const isSingle = groupNames.length === 1;
+    const defaultAdvancing = Number(tournament?.advancingPerGroup) || 2;
     groupNames.forEach((gName) => {
       const groupTeams = standings[gName] || [];
-      // Nếu 1 bảng: lấy 4 đội; nếu nhiều bảng: >= 4 đội lấy 2 đội (Nhất + Nhì), < 4 đội lấy 1 đội (Nhất)
+      // Nếu 1 bảng: lấy 4 đội; nếu nhiều bảng: lấy theo tournament.advancingPerGroup (mặc định 2)
       const advancingForThisGroup = isSingle
         ? Math.min(4, groupTeams.length)
-        : groupTeams.length >= 4
-        ? 2
-        : (tournament.advancingPerGroup || 1);
+        : defaultAdvancing;
       groupTeams.slice(0, advancingForThisGroup).forEach((item) => {
         if (item.team?.id) initialIds.push(item.team.id);
       });

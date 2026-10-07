@@ -48,15 +48,17 @@ export default function GroupStandingsTab({
 
   // Danh sách các đội đủ điều kiện vào vòng trong theo quy tắc
   const qualifiedSummary = [];
+  const defaultAdvancing = Number(tournament?.advancingPerGroup) || 0;
+
+  console.log("defaultAdvancing", defaultAdvancing)
+
   groupNames.forEach((gName) => {
     const groupTeams = standings[gName] || [];
     // Nếu giải chỉ có 1 bảng: lấy 4 đội có điểm cao nhất
-    // Nếu nhiều bảng: Bảng 4 đội trở lên lấy 2 đội (Nhất + Nhì), bảng < 4 đội lấy 1 đội (Nhất)
+    // Nếu nhiều bảng: lấy theo tournament.advancingPerGroup (mặc định 2)
     const advancingCount = isSingleGroup
       ? Math.min(4, groupTeams.length)
-      : groupTeams.length >= 4
-        ? 2
-        : 1;
+      : defaultAdvancing;
 
     groupTeams.slice(0, advancingCount).forEach((item) => {
       qualifiedSummary.push({
@@ -91,13 +93,10 @@ export default function GroupStandingsTab({
         <div className="lg:col-span-8 space-y-6">
           {groupNames.map((gName) => {
             const groupTeams = standings[gName] || [];
-            // Quy tắc: 1 bảng lấy 4 đội; nhiều bảng: >= 4 đội lấy 2 đội (Nhất + Nhì), < 4 đội lấy 1 đội (Nhất)
-            const isFourOrMore = groupTeams.length >= 4;
+            // Quy tắc: 1 bảng lấy 4 đội; nhiều bảng: lấy theo advancingPerGroup
             const advancingCount = isSingleGroup
               ? Math.min(4, groupTeams.length)
-              : isFourOrMore
-                ? 2
-                : 1;
+              : defaultAdvancing;
 
             // Đếm số trận của bảng này
             const thisGroupMatches = matches.filter(
@@ -126,13 +125,17 @@ export default function GroupStandingsTab({
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300/80 shadow-xs">
                         Lấy 4 đội cao điểm nhất (Top 1 - 4)
                       </span>
-                    ) : isFourOrMore ? (
+                    ) : advancingCount === 1 ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300/80 shadow-xs">
+                        Lấy 1 đội (Nhất bảng)
+                      </span>
+                    ) : advancingCount === 2 ? (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300/80 shadow-xs">
                         Lấy 2 đội (Nhất + Nhì)
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-sky-50 text-sky-800 border border-sky-300/80 shadow-xs">
-                        Lấy 1 đội (Nhất)
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-300/80 shadow-xs">
+                        Lấy Top {advancingCount} đội
                       </span>
                     )}
                   </div>
@@ -186,13 +189,13 @@ export default function GroupStandingsTab({
                               <span
                                 className={`w-6 h-6 rounded-full inline-flex items-center justify-center text-xs font-black mx-auto shadow-xs ${isFirst
                                     ? 'bg-gradient-to-b from-amber-300 to-amber-500 text-slate-950 font-black ring-1 ring-amber-400'
-                                    : isSecond && (isSingleGroup || isFourOrMore)
+                                    : isSecond && isQualifying
                                       ? 'bg-gradient-to-b from-slate-200 to-slate-400 text-slate-900 font-black ring-1 ring-slate-300'
-                                      : isThird && isSingleGroup
+                                      : isThird && isQualifying
                                         ? 'bg-gradient-to-b from-amber-600 to-amber-700 text-white font-black ring-1 ring-amber-600'
-                                        : isFourth && isSingleGroup
+                                        : isFourth && isQualifying
                                           ? 'bg-gradient-to-b from-emerald-600 to-emerald-700 text-white font-black ring-1 ring-emerald-600'
-                                          : isSecond
+                                          : row.rank === 2
                                             ? 'bg-slate-200 text-slate-700'
                                             : 'text-slate-400 bg-slate-100'
                                   }`}
@@ -297,6 +300,16 @@ export default function GroupStandingsTab({
                           <span>
                             Lấy <strong>4 đội có điểm cao nhất</strong> vào vòng knock-out (Bán Kết).
                           </span>
+                        </p>
+                      </div>
+                    ) : defaultAdvancing === 1 ? (
+                      <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-950 space-y-1">
+                        <p className="font-bold flex items-center gap-1.5 text-emerald-900 mb-0.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Quy tắc đi tiếp:</span>
+                        </p>
+                        <p className="text-[12px] pl-5 text-emerald-900">
+                          Lấy duy nhất <strong>Đội Nhất mỗi bảng</strong> vào vòng knock-out.
                         </p>
                       </div>
                     ) : (

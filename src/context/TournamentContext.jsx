@@ -1002,19 +1002,29 @@ export const TournamentProvider = ({ children }) => {
         createCustomBracket(tournamentId, knockoutPairs, 2);
       }
     } else if (groupKeys.length >= 4) {
-      // 4 Bảng (A, B, C, D) -> Tứ Kết (Nhất A vs Nhì B, Nhất C vs Nhì D, Nhất B vs Nhì A, Nhất D vs Nhì C)
+      // 4 Bảng (A, B, C, D)
       const gA = standings['Bảng A'] || [];
       const gB = standings['Bảng B'] || [];
       const gC = standings['Bảng C'] || [];
       const gD = standings['Bảng D'] || [];
 
-      knockoutPairs.push(
-        { team1Id: gA[0]?.team?.id || null, team2Id: gB[1]?.team?.id || null },
-        { team1Id: gC[0]?.team?.id || null, team2Id: gD[1]?.team?.id || null },
-        { team1Id: gB[0]?.team?.id || null, team2Id: gA[1]?.team?.id || null },
-        { team1Id: gD[0]?.team?.id || null, team2Id: gC[1]?.team?.id || null }
-      );
-      createCustomBracket(tournamentId, knockoutPairs, 8);
+      if (advancingCount === 1) {
+        // Chỉ lấy 4 đội Nhất bảng -> Bán Kết
+        knockoutPairs.push(
+          { team1Id: gA[0]?.team?.id || null, team2Id: gB[0]?.team?.id || null },
+          { team1Id: gC[0]?.team?.id || null, team2Id: gD[0]?.team?.id || null }
+        );
+        createCustomBracket(tournamentId, knockoutPairs, 4);
+      } else {
+        // Tứ Kết (Nhất A vs Nhì B, Nhất C vs Nhì D, Nhất B vs Nhì A, Nhất D vs Nhì C)
+        knockoutPairs.push(
+          { team1Id: gA[0]?.team?.id || null, team2Id: gB[1]?.team?.id || null },
+          { team1Id: gC[0]?.team?.id || null, team2Id: gD[1]?.team?.id || null },
+          { team1Id: gB[0]?.team?.id || null, team2Id: gA[1]?.team?.id || null },
+          { team1Id: gD[0]?.team?.id || null, team2Id: gC[1]?.team?.id || null }
+        );
+        createCustomBracket(tournamentId, knockoutPairs, 8);
+      }
     }
 
     showToast('🏆 Đã chuyển các đội xuất sắc nhất vòng bảng vào Sơ Đồ Nhánh Đấu Knockout!');
