@@ -183,7 +183,7 @@ export default function TournamentDetailPage({ tournamentId, onBack }) {
               <div className="flex items-center gap-1.5 bg-black/15 px-3 py-1 rounded-full backdrop-blur-sm">
                 <Award className="w-3.5 h-3.5 text-emerald-300" />
                 <span>
-                  {tournament.maxSets} Set • 21 Điểm (Cap {tournament.maxPointsCap || 30})
+                  {tournament.maxSets} Set • {tournament.pointsToWinSet} Điểm (Cap {tournament.maxPointsCap || 30})
                 </span>
               </div>
             </div>
